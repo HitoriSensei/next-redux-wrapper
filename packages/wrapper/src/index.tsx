@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useRef} from 'react';
 import {Store, AnyAction, Action} from 'redux';
 import {Provider} from 'react-redux';
-import {GetServerSideProps, GetStaticProps, NextComponentType, NextPage, NextPageContext} from 'next';
+import {GetServerSideProps, GetServerSidePropsResult, GetStaticProps, GetStaticPropsResult, NextComponentType, NextPage, NextPageContext} from 'next';
 import App, {AppContext, AppInitialProps} from 'next/app';
 import {IncomingMessage, ServerResponse} from 'http';
 import {ParsedUrlQuery} from 'querystring';
@@ -126,7 +126,7 @@ export const createWrapper = <S extends {} = any, A extends Action = AnyAction>(
         (await makeProps({callback, context, isApp: true})) as WrapperProps & AppInitialProps; // this is just to convince TS
 
     const getStaticProps = <P extends {} = any>(
-        callback: (context: GetStaticPropsContext & {store: Store<S, A>}) => P | void,
+        callback: (context: GetStaticPropsContext & {store: Store<S, A>}) => GetStaticPropsResult<P> | Promise<GetStaticPropsResult<P>> | void,
     ): GetStaticProps<P> => async (context: any) => {
         const {
             initialProps: {props, ...settings},
@@ -143,7 +143,7 @@ export const createWrapper = <S extends {} = any, A extends Action = AnyAction>(
     };
 
     const getServerSideProps = <P extends {} = any>(
-        callback: (context: GetServerSidePropsContext & {store: Store<S, A>}) => P | void,
+        callback: (context: GetServerSidePropsContext & {store: Store<S, A>}) => GetServerSidePropsResult<P> | Promise<GetServerSidePropsResult<P>> | void,
     ): GetServerSideProps<P> => async (context: any) => {
         return await getStaticProps(callback as any)(context); // just not to repeat myself
     };
